@@ -1,7 +1,6 @@
 import type {ReactNode} from 'react';
 import React from 'react';
 import type {StyleProp, TextStyle, ViewStyle} from 'react-native';
-import usePrevious from '@hooks/usePrevious';
 import useResponsiveLayout from '@hooks/useResponsiveLayout';
 import useThemeStyles from '@hooks/useThemeStyles';
 import CONST from '@src/CONST';
@@ -153,14 +152,6 @@ function ConfirmModal({
     // eslint-disable-next-line rulesdir/prefer-shouldUseNarrowLayout-instead-of-isSmallScreenWidth
     const {isSmallScreenWidth} = useResponsiveLayout();
     const styles = useThemeStyles();
-
-    // Previous state needed for exiting animation to play correctly.
-    const prevVisible = usePrevious(isVisible);
-
-    // Perf: Prevents from rendering whole confirm modal on initial render.
-    if (!isVisible && !prevVisible) {
-        return null;
-    }
 
     return (
         <Modal

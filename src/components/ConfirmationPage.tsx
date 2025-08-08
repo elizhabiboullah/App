@@ -20,16 +20,10 @@ type ConfirmationPageProps = {
     heading: string;
 
     /** Description of the confirmation page */
-    description?: React.ReactNode;
-
-    /** Description component of the confirmation page */
-    descriptionComponent?: React.ReactNode;
+    description: React.ReactNode;
 
     /** The text for the call to action */
     cta?: React.ReactNode;
-
-    /** Call to action component of the confirmation page */
-    ctaComponent?: React.ReactNode;
 
     /** The text for the primary button label */
     buttonText?: string;
@@ -75,9 +69,7 @@ function ConfirmationPage({
     illustration = LottieAnimations.Fireworks,
     heading,
     description,
-    descriptionComponent,
     cta,
-    ctaComponent,
     buttonText = '',
     onButtonPress = () => {},
     shouldShowButton = false,
@@ -118,10 +110,8 @@ function ConfirmationPage({
                     </View>
                 )}
                 <Text style={[styles.textHeadline, styles.textAlignCenter, styles.mv2, headingStyle]}>{heading}</Text>
-                {!!descriptionComponent && descriptionComponent}
-                {!!description && <Text style={[styles.textAlignCenter, descriptionStyle, styles.w100]}>{description}</Text>}
+                <Text style={[styles.textAlignCenter, descriptionStyle, styles.w100]}>{description}</Text>
                 {cta ? <Text style={[styles.textAlignCenter, ctaStyle]}>{cta}</Text> : null}
-                {!!ctaComponent && ctaComponent}
             </View>
             {(shouldShowSecondaryButton || shouldShowButton) && (
                 <FixedFooter style={footerStyle}>

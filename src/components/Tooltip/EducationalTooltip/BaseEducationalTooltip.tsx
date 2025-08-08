@@ -1,4 +1,4 @@
-import {NavigationContext, useIsFocused} from '@react-navigation/native';
+import {NavigationContext} from '@react-navigation/native';
 import React, {memo, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import type {LayoutRectangle, NativeMethods, NativeSyntheticEvent} from 'react-native';
 import {DeviceEventEmitter, Dimensions} from 'react-native';
@@ -27,15 +27,12 @@ function BaseEducationalTooltip({children, shouldRender = false, shouldHideOnNav
     const show = useRef<(() => void) | undefined>(undefined);
 
     const navigator = useContext(NavigationContext);
-    const isFocused = useIsFocused();
     const insets = useSafeAreaInsets();
 
     const isResizing = useIsResizing();
 
-    const shouldSuppressTooltip = !isFocused && shouldHideOnNavigate;
-
     const renderTooltip = useCallback(() => {
-        if (!tooltipElementRef.current || !genericTooltipStateRef.current || shouldSuppressTooltip) {
+        if (!tooltipElementRef.current || !genericTooltipStateRef.current) {
             return;
         }
 
@@ -68,7 +65,7 @@ function BaseEducationalTooltip({children, shouldRender = false, shouldHideOnNav
                 showTooltip();
             }
         });
-    }, [insets, shouldSuppressTooltip]);
+    }, [insets]);
 
     useEffect(() => {
         if (!genericTooltipStateRef.current || !shouldRender) {
@@ -123,7 +120,7 @@ function BaseEducationalTooltip({children, shouldRender = false, shouldHideOnNav
     }, []);
 
     useEffect(() => {
-        if (!shouldMeasure || shouldSuppressTooltip) {
+        if (!shouldMeasure) {
             return;
         }
         if (!shouldRender) {
@@ -137,7 +134,7 @@ function BaseEducationalTooltip({children, shouldRender = false, shouldHideOnNav
         return () => {
             clearTimeout(timerID);
         };
-    }, [shouldMeasure, shouldRender, shouldSuppressTooltip]);
+    }, [shouldMeasure, shouldRender]);
 
     useEffect(() => {
         if (!navigator) {

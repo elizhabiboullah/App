@@ -136,4 +136,4 @@ type BaseModalProps = Partial<ReactNativeModalProps> &
     };
 
 export default BaseModalProps;
-export type {PopoverAnchorPosition, FocusTrapOptions, WindowState};
+export type {PopoverAnchorPosition, WindowState};

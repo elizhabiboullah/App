@@ -100,7 +100,7 @@ export default {
         let body;
         const icon = usesIcon ? EXPENSIFY_ICON_URL : '';
 
-        const isRoomOrGroupChat = ReportUtils.isChatRoom(report) || ReportUtils.isPolicyExpenseChat(report) || ReportUtils.isGroupChat(report);
+        const isChatRoom = ReportUtils.isChatRoom(report) || ReportUtils.isPolicyExpenseChat(report);
 
         const {person, message} = reportAction;
         const plainTextPerson = person?.map((f) => Str.removeSMSDomain(f.text ?? '')).join() ?? '';
@@ -113,7 +113,7 @@ export default {
             plainTextMessage = message?.type === 'COMMENT' ? getTextFromHtml(message?.html) : '';
         }
 
-        if (isRoomOrGroupChat) {
+        if (isChatRoom) {
             const roomName = ReportUtils.getReportName(report);
             title = roomName;
             body = `${plainTextPerson}: ${plainTextMessage}`;

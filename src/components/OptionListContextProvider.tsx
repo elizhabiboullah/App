@@ -1,5 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import type {OnyxCollection, OnyxEntry} from 'react-native-onyx';
+import type {OnyxCollection} from 'react-native-onyx';
 import useOnyx from '@hooks/useOnyx';
 import usePrevious from '@hooks/usePrevious';
 import {createOptionFromReport, createOptionList, processReport, shallowOptionsListCompare} from '@libs/OptionsListUtils';
@@ -54,7 +54,6 @@ function OptionsListContextProvider({children}: OptionsListProviderProps) {
     const personalDetails = usePersonalDetails();
     const prevPersonalDetails = usePrevious(personalDetails);
     const hasInitialData = useMemo(() => Object.keys(personalDetails ?? {}).length > 0, [personalDetails]);
-    const [transactions] = useOnyx(ONYXKEYS.COLLECTION.TRANSACTION, {canBeMissing: true});
 
     const loadOptions = useCallback(() => {
         const optionLists = createOptionList(personalDetails, reports, reportAttributes?.reports);
@@ -88,11 +87,13 @@ function OptionsListContextProvider({children}: OptionsListProviderProps) {
     }, [prevReportAttributesLocale, loadOptions, reportAttributes?.locale]);
 
     const changedReportsEntries = useMemo(() => {
-        const result: OnyxCollection<OnyxEntry<Report>> = {};
+        const result: OnyxCollection<Report> = {};
 
         Object.keys(changedReports ?? {}).forEach((key) => {
             const report = reports?.[key];
-            result[key] = report;
+            if (report) {
+                result[key] = report;
+            }
         });
         return result;
     }, [changedReports, reports]);
@@ -161,7 +162,7 @@ function OptionsListContextProvider({children}: OptionsListProviderProps) {
                 reports: Array.from(updatedReportsMap.values()),
             };
         });
-    }, [changedReportActions, personalDetails, reportAttributes?.reports, transactions]);
+    }, [changedReportActions, personalDetails, reportAttributes?.reports]);
 
     /**
      * This effect is used to update the options list when personal details change.

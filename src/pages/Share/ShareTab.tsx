@@ -4,6 +4,7 @@ import SelectionList from '@components/SelectionList';
 import InviteMemberListItem from '@components/SelectionList/InviteMemberListItem';
 import type {SelectionListHandle} from '@components/SelectionList/types';
 import useDebouncedState from '@hooks/useDebouncedState';
+import useFastSearchFromOptions from '@hooks/useFastSearchFromOptions';
 import useLocalize from '@hooks/useLocalize';
 import useNetwork from '@hooks/useNetwork';
 import useOnyx from '@hooks/useOnyx';
@@ -54,24 +55,27 @@ function ShareTab(_: unknown, ref: React.Ref<ShareTabRef>) {
         if (!areOptionsInitialized) {
             return defaultListOptions;
         }
-        return getSearchOptions(options, betas ?? [], false, false, textInputValue, 20, true);
-    }, [areOptionsInitialized, betas, options, textInputValue]);
+        return getSearchOptions(options, betas ?? [], false, false);
+    }, [areOptionsInitialized, betas, options]);
+
+    const {search: filterOptions} = useFastSearchFromOptions(searchOptions, {includeUserToInvite: true});
 
     const recentReportsOptions = useMemo(() => {
         if (textInputValue.trim() === '') {
             return optionsOrderBy(searchOptions.recentReports, recentReportComparator, 20);
         }
-        const orderedOptions = combineOrderingOfReportsAndPersonalDetails(searchOptions, textInputValue, {
+        const filteredOptions = filterOptions(textInputValue);
+        const orderedOptions = combineOrderingOfReportsAndPersonalDetails(filteredOptions, textInputValue, {
             sortByReportTypeInSearch: true,
             preferChatRoomsOverThreads: true,
         });
 
         const reportOptions: OptionData[] = [...orderedOptions.recentReports, ...orderedOptions.personalDetails];
-        if (searchOptions.userToInvite) {
-            reportOptions.push(searchOptions.userToInvite);
+        if (filteredOptions.userToInvite) {
+            reportOptions.push(filteredOptions.userToInvite);
         }
         return reportOptions.slice(0, 20);
-    }, [searchOptions, textInputValue]);
+    }, [filterOptions, searchOptions.recentReports, textInputValue]);
 
     useEffect(() => {
         searchInServer(debouncedTextInputValue.trim());

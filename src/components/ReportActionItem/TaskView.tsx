@@ -44,7 +44,6 @@ type TaskViewProps = {
 };
 
 function TaskView({report, parentReport, action}: TaskViewProps) {
-    const {translate, localeCompare} = useLocalize();
     const styles = useThemeStyles();
     const StyleUtils = useStyleUtils();
     const currentUserPersonalDetails = useCurrentUserPersonalDetails();
@@ -58,7 +57,7 @@ function TaskView({report, parentReport, action}: TaskViewProps) {
     const titleWithoutImage = Parser.replace(Parser.htmlToMarkdown(taskTitleWithoutPre), {disabledRules: [...CONST.TASK_TITLE_DISABLED_RULES]});
     const taskTitle = `<task-title>${titleWithoutImage}</task-title>`;
 
-    const assigneeTooltipDetails = getDisplayNamesWithTooltips(getPersonalDetailsForAccountIDs(report?.managerID ? [report?.managerID] : [], personalDetails), false, localeCompare);
+    const assigneeTooltipDetails = getDisplayNamesWithTooltips(getPersonalDetailsForAccountIDs(report?.managerID ? [report?.managerID] : [], personalDetails), false);
 
     const isOpen = isOpenTaskReport(report);
     const isCompleted = isCompletedTaskReport(report);
@@ -68,6 +67,7 @@ function TaskView({report, parentReport, action}: TaskViewProps) {
 
     const disableState = !isTaskModifiable;
     const isDisableInteractive = disableState || !isOpen;
+    const {translate} = useLocalize();
     const accountID = currentUserPersonalDetails?.accountID ?? CONST.DEFAULT_NUMBER_ID;
     const contextValue = useMemo(
         () => ({

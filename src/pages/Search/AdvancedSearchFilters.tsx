@@ -104,11 +104,6 @@ const baseFilterConfig = {
         description: 'search.filters.posted' as const,
         route: ROUTES.SEARCH_ADVANCED_FILTERS_POSTED,
     },
-    withdrawn: {
-        getTitle: getFilterDisplayTitle,
-        description: 'search.filters.withdrawn' as const,
-        route: ROUTES.SEARCH_ADVANCED_FILTERS_WITHDRAWN,
-    },
     currency: {
         getTitle: getFilterDisplayTitle,
         description: 'common.currency' as const,
@@ -242,7 +237,6 @@ const typeFiltersKeys = {
             CONST.SEARCH.SYNTAX_FILTER_KEYS.APPROVED,
             CONST.SEARCH.SYNTAX_FILTER_KEYS.PAID,
             CONST.SEARCH.SYNTAX_FILTER_KEYS.EXPORTED,
-            CONST.SEARCH.SYNTAX_FILTER_KEYS.WITHDRAWN,
         ],
     ],
     [CONST.SEARCH.DATA_TYPES.INVOICE]: [
@@ -272,7 +266,6 @@ const typeFiltersKeys = {
             CONST.SEARCH.SYNTAX_FILTER_KEYS.APPROVED,
             CONST.SEARCH.SYNTAX_FILTER_KEYS.PAID,
             CONST.SEARCH.SYNTAX_FILTER_KEYS.EXPORTED,
-            CONST.SEARCH.SYNTAX_FILTER_KEYS.WITHDRAWN,
         ],
     ],
     [CONST.SEARCH.DATA_TYPES.TRIP]: [
@@ -480,7 +473,7 @@ function getFilterDisplayTitle(
 }
 
 function getStatusFilterDisplayTitle(filters: Partial<SearchAdvancedFiltersForm>, type: SearchDataTypes, groupBy: SearchGroupBy | undefined, translate: LocaleContextProps['translate']) {
-    const statusOptions = getStatusOptions(type, groupBy).concat({text: translate('common.all'), value: CONST.SEARCH.STATUS.EXPENSE.ALL});
+    const statusOptions = getStatusOptions(type, groupBy).concat({translation: 'common.all', value: CONST.SEARCH.STATUS.EXPENSE.ALL});
     let filterValue = filters?.status;
 
     if (!filterValue?.length) {
@@ -495,7 +488,7 @@ function getStatusFilterDisplayTitle(filters: Partial<SearchAdvancedFiltersForm>
         .reduce((acc, value) => {
             const status = statusOptions.find((statusOption) => statusOption.value === value);
             if (status) {
-                return acc.concat(status.text);
+                return acc.concat(translate(status.translation));
             }
             return acc;
         }, [] as string[])
@@ -664,7 +657,6 @@ function AdvancedSearchFilters() {
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.APPROVED ||
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.PAID ||
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.EXPORTED ||
-                        key === CONST.SEARCH.SYNTAX_FILTER_KEYS.WITHDRAWN ||
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.AMOUNT ||
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.CURRENCY ||
                         key === CONST.SEARCH.SYNTAX_FILTER_KEYS.DESCRIPTION ||

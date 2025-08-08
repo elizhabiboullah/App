@@ -1,10 +1,11 @@
 import React, {useCallback} from 'react';
+import AmountForm from '@components/AmountForm';
 import FormProvider from '@components/Form/FormProvider';
 import InputWrapper from '@components/Form/InputWrapper';
 import type {FormOnyxValues} from '@components/Form/types';
 import HeaderWithBackButton from '@components/HeaderWithBackButton';
-import NumberWithSymbolForm from '@components/NumberWithSymbolForm';
 import ScreenWrapper from '@components/ScreenWrapper';
+import Text from '@components/Text';
 import useAutoFocusInput from '@hooks/useAutoFocusInput';
 import useLocalize from '@hooks/useLocalize';
 import useThemeStyles from '@hooks/useThemeStyles';
@@ -86,20 +87,19 @@ function ValuePage({
                     addBottomSafeAreaPadding
                 >
                     <InputWrapper
-                        InputComponent={NumberWithSymbolForm}
+                        InputComponent={AmountForm}
                         inputID={INPUT_IDS.VALUE}
                         defaultValue={defaultValue}
-                        decimals={CONST.MAX_TAX_RATE_DECIMAL_PLACES}
+                        hideCurrencySymbol
+                        // The default currency uses 2 decimal places, so we subtract it
+                        extraDecimals={CONST.MAX_TAX_RATE_DECIMAL_PLACES - 2}
                         // We increase the amount max length to support the extra decimals.
-                        maxLength={CONST.MAX_TAX_RATE_INTEGER_PLACES}
-                        symbol="%"
-                        symbolPosition={CONST.TEXT_INPUT_SYMBOL_POSITION.SUFFIX}
+                        amountMaxLength={CONST.MAX_TAX_RATE_INTEGER_PLACES}
+                        extraSymbol={<Text style={[styles.iouAmountText, styles.lineHeightUndefined]}>%</Text>}
                         ref={inputCallbackRef}
                         autoGrowExtraSpace={variables.w80}
-                        isSymbolPressable={false}
                         autoGrowMarginSide="left"
                         style={[styles.iouAmountTextInput, styles.textAlignRight]}
-                        containerStyle={styles.iouAmountTextInputContainer}
                     />
                 </FormProvider>
             </ScreenWrapper>

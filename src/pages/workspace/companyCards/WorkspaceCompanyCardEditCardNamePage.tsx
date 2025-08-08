@@ -12,7 +12,7 @@ import useLocalize from '@hooks/useLocalize';
 import useOnyx from '@hooks/useOnyx';
 import useThemeStyles from '@hooks/useThemeStyles';
 import useWorkspaceAccountID from '@hooks/useWorkspaceAccountID';
-import {getCompanyFeeds, getDomainOrWorkspaceAccountID} from '@libs/CardUtils';
+import {getCompanyFeeds, getCustomCardName, getDomainOrWorkspaceAccountID} from '@libs/CardUtils';
 import {addErrorMessage} from '@libs/ErrorUtils';
 import type {PlatformStackScreenProps} from '@libs/Navigation/PlatformStackNavigation/types';
 import {getFieldRequiredErrors} from '@libs/ValidationUtils';
@@ -26,7 +26,6 @@ import ROUTES from '@src/ROUTES';
 import type SCREENS from '@src/SCREENS';
 import INPUT_IDS from '@src/types/form/EditExpensifyCardNameForm';
 import type {CompanyCardFeed} from '@src/types/onyx';
-import isLoadingOnyxValue from '@src/types/utils/isLoadingOnyxValue';
 
 type WorkspaceCompanyCardEditCardNamePageProps = PlatformStackScreenProps<SettingsNavigatorParamList, typeof SCREENS.WORKSPACE.COMPANY_CARD_NAME>;
 
@@ -34,8 +33,8 @@ function WorkspaceCompanyCardEditCardNamePage({route}: WorkspaceCompanyCardEditC
     const {policyID, cardID} = route.params;
     const workspaceAccountID = useWorkspaceAccountID(policyID);
     const bank = decodeURIComponent(route.params.bank);
-    const [customCardNames, customCardNamesMetadata] = useOnyx(ONYXKEYS.NVP_EXPENSIFY_COMPANY_CARDS_CUSTOM_NAMES, {canBeMissing: true});
-    const defaultValue = customCardNames?.[cardID];
+    const [customCardNames] = useOnyx(ONYXKEYS.NVP_EXPENSIFY_COMPANY_CARDS_CUSTOM_NAMES, {canBeMissing: true});
+    const defaultValue = customCardNames?.[cardID] ?? getCustomCardName(cardID);
 
     const {translate} = useLocalize();
     const {inputCallbackRef} = useAutoFocusInput();
@@ -65,10 +64,6 @@ function WorkspaceCompanyCardEditCardNamePage({route}: WorkspaceCompanyCardEditC
         }
         return errors;
     };
-
-    if (isLoadingOnyxValue(customCardNamesMetadata)) {
-        return null;
-    }
 
     return (
         <AccessOrNotFoundWrapper

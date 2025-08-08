@@ -1,12 +1,12 @@
-import type {LocaleContextProps} from '@components/LocaleContextProvider';
 import CONST from '@src/CONST';
 import type {PersonalDetails} from '@src/types/onyx';
 import type {DeviceContact, StringHolder} from './ContactImport/types';
+import localeCompare from './LocaleCompare';
 import {getUserToInviteContactOption} from './OptionsListUtils';
 import type {SearchOption} from './OptionsListUtils';
 import RandomAvatarUtils from './RandomAvatarUtils';
 
-function sortEmailObjects(emails: StringHolder[], localeCompare: LocaleContextProps['localeCompare']): string[] {
+function sortEmailObjects(emails?: StringHolder[]): string[] {
     if (!emails?.length) {
         return [];
     }
@@ -28,10 +28,10 @@ function sortEmailObjects(emails: StringHolder[], localeCompare: LocaleContextPr
     });
 }
 
-const getContacts = (deviceContacts: DeviceContact[] | [], localeCompare: LocaleContextProps['localeCompare']): Array<SearchOption<PersonalDetails>> => {
+const getContacts = (deviceContacts: DeviceContact[] | []): Array<SearchOption<PersonalDetails>> => {
     return deviceContacts
         .map((contact) => {
-            const email = sortEmailObjects(contact?.emailAddresses ?? [], localeCompare)?.at(0) ?? '';
+            const email = sortEmailObjects(contact?.emailAddresses ?? [])?.at(0) ?? '';
             // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
             const avatarSource = (contact?.imageData || RandomAvatarUtils.getAvatarForContact(`${contact?.firstName}${email}${contact?.lastName}`)) ?? '';
             const phoneNumber = contact.phoneNumbers?.[0]?.value ?? '';
@@ -53,4 +53,3 @@ const getContacts = (deviceContacts: DeviceContact[] | [], localeCompare: Locale
 };
 
 export default getContacts;
-export {sortEmailObjects};

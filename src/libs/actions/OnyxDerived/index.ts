@@ -17,7 +17,6 @@ import {setDerivedValue} from './utils';
 
 /**
  * Initialize all Onyx derived values, store them in Onyx, and setup listeners to update them when dependencies change.
- * Using connectWithoutView in this function since this is only executed once while initializing the App.
  */
 function init() {
     for (const [key, {compute, dependencies}] of ObjectUtils.typedEntries(ONYX_DERIVED_VALUES)) {
@@ -94,7 +93,7 @@ function init() {
                 const dependencyOnyxKey = dependencies[dependencyIndex];
 
                 if (OnyxUtils.isCollectionKey(dependencyOnyxKey)) {
-                    Onyx.connectWithoutView({
+                    Onyx.connect({
                         key: dependencyOnyxKey,
                         waitForCollectionCallback: true,
                         callback: (value, collectionKey, sourceValue) => {
@@ -105,7 +104,7 @@ function init() {
                     });
                 } else if (dependencyOnyxKey === ONYXKEYS.NVP_PREFERRED_LOCALE) {
                     // Special case for locale, we want to recompute derived values when the locale change actually loads.
-                    Onyx.connectWithoutView({
+                    Onyx.connect({
                         key: ONYXKEYS.ARE_TRANSLATIONS_LOADING,
                         initWithStoredValues: false,
                         callback: (value) => {
@@ -125,7 +124,7 @@ function init() {
                         },
                     });
                 } else {
-                    Onyx.connectWithoutView({
+                    Onyx.connect({
                         key: dependencyOnyxKey,
                         callback: (value) => {
                             Log.info(`[OnyxDerived] dependency ${dependencyOnyxKey} for derived key ${key} changed, recomputing`);

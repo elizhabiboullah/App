@@ -9,7 +9,6 @@ import useOnyx from '@hooks/useOnyx';
 import useThemeStyles from '@hooks/useThemeStyles';
 import {updateAdvancedFilters} from '@libs/actions/Search';
 import Navigation from '@libs/Navigation/Navigation';
-import {getDatePresets} from '@libs/SearchUIUtils';
 import type {SearchDateModifier, SearchDateModifierLower} from '@libs/SearchUIUtils';
 import CONST from '@src/CONST';
 import type {TranslationPaths} from '@src/languages/types';
@@ -17,7 +16,7 @@ import ONYXKEYS from '@src/ONYXKEYS';
 import ROUTES from '@src/ROUTES';
 import SearchDatePresetFilterBase from './SearchDatePresetFilterBase';
 import type {SearchDatePresetFilterBaseHandle} from './SearchDatePresetFilterBase';
-import type {SearchDateFilterKeys} from './types';
+import type {SearchDateFilterKeys, SearchDatePreset} from './types';
 
 type SearchDatePresetFilterBasePageProps = {
     /** Key used for the date filter */
@@ -25,9 +24,12 @@ type SearchDatePresetFilterBasePageProps = {
 
     /** The translation key for the page title */
     titleKey: TranslationPaths;
+
+    /** The date presets */
+    presets?: SearchDatePreset[];
 };
 
-function SearchDatePresetFilterBasePage({dateKey, titleKey}: SearchDatePresetFilterBasePageProps) {
+function SearchDatePresetFilterBasePage({dateKey, titleKey, presets}: SearchDatePresetFilterBasePageProps) {
     const styles = useThemeStyles();
     const {translate} = useLocalize();
 
@@ -40,11 +42,6 @@ function SearchDatePresetFilterBasePage({dateKey, titleKey}: SearchDatePresetFil
         [CONST.SEARCH.DATE_MODIFIERS.BEFORE]: searchAdvancedFiltersForm?.[`${dateKey}${CONST.SEARCH.DATE_MODIFIERS.BEFORE}`],
         [CONST.SEARCH.DATE_MODIFIERS.AFTER]: searchAdvancedFiltersForm?.[`${dateKey}${CONST.SEARCH.DATE_MODIFIERS.AFTER}`],
     };
-
-    const presets = useMemo(() => {
-        const hasFeed = !!searchAdvancedFiltersForm?.feed?.length;
-        return getDatePresets(dateKey, hasFeed);
-    }, [dateKey, searchAdvancedFiltersForm?.feed]);
 
     const title = useMemo(() => {
         if (selectedDateModifier) {

@@ -6,11 +6,9 @@ import type {ValueOf} from 'type-fest';
 import Avatar from '@components/Avatar';
 import Icon from '@components/Icon';
 import {WorkspaceBuilding} from '@components/Icon/WorkspaceDefaultAvatars';
-import PressableWithoutFocus from '@components/Pressable/PressableWithoutFocus';
 import Text from '@components/Text';
 import Tooltip from '@components/Tooltip';
 import UserDetailsTooltip from '@components/UserDetailsTooltip';
-import useLocalize from '@hooks/useLocalize';
 import useOnyx from '@hooks/useOnyx';
 import useStyleUtils from '@hooks/useStyleUtils';
 import useTheme from '@hooks/useTheme';
@@ -20,11 +18,9 @@ import {getCardFeedIcon} from '@libs/CardUtils';
 import localeCompare from '@libs/LocaleCompare';
 import {getUserDetailTooltipText} from '@libs/ReportUtils';
 import type {AvatarSource} from '@libs/UserUtils';
-import Navigation from '@navigation/Navigation';
 import variables from '@styles/variables';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
-import ROUTES from '@src/ROUTES';
 import type {CompanyCardFeed, OnyxInputOrEntry, PersonalDetailsList} from '@src/types/onyx';
 import type {Icon as IconType} from '@src/types/onyx/OnyxCommon';
 
@@ -65,38 +61,6 @@ type AvatarSizeToStyles = typeof CONST.AVATAR_SIZE.SMALL | typeof CONST.AVATAR_S
 
 type AvatarSizeToStylesMap = Record<AvatarSizeToStyles, AvatarStyles>;
 
-function ProfileAvatar(props: Parameters<typeof Avatar>[0] & {useProfileNavigationWrapper?: boolean}) {
-    const {translate} = useLocalize();
-    const {avatarID, useProfileNavigationWrapper, type} = props;
-
-    if (!useProfileNavigationWrapper) {
-        return (
-            /* eslint-disable-next-line react/jsx-props-no-spreading */
-            <Avatar {...{...props, useProfileNavigationWrapper: undefined}} />
-        );
-    }
-
-    const isWorkspace = type === CONST.ICON_TYPE_WORKSPACE;
-
-    const onPress = () => {
-        if (isWorkspace) {
-            return Navigation.navigate(ROUTES.WORKSPACE_AVATAR.getRoute(String(avatarID)));
-        }
-        return Navigation.navigate(ROUTES.PROFILE_AVATAR.getRoute(Number(avatarID), Navigation.getActiveRoute()));
-    };
-
-    return (
-        <PressableWithoutFocus
-            onPress={onPress}
-            accessibilityLabel={translate(isWorkspace ? 'common.workspaces' : 'common.profile')}
-            accessibilityRole={CONST.ROLE.BUTTON}
-        >
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <Avatar {...{...props, useProfileNavigationWrapper: undefined}} />
-        </PressableWithoutFocus>
-    );
-}
-
 function ReportActionAvatarSingle({
     avatar,
     size,
@@ -106,8 +70,6 @@ function ReportActionAvatarSingle({
     accountID,
     fallbackIcon,
     isInReportAction,
-    useProfileNavigationWrapper,
-    fallbackDisplayName,
 }: {
     avatar: IconType | undefined;
     size: ValueOf<typeof CONST.AVATAR_SIZE>;
@@ -117,8 +79,6 @@ function ReportActionAvatarSingle({
     delegateAccountID?: number;
     fallbackIcon?: AvatarSource;
     isInReportAction?: boolean;
-    useProfileNavigationWrapper?: boolean;
-    fallbackDisplayName?: string;
 }) {
     const StyleUtils = useStyleUtils();
     const avatarContainerStyles = StyleUtils.getContainerStyles(size, isInReportAction);
@@ -129,14 +89,12 @@ function ReportActionAvatarSingle({
             delegateAccountID={delegateAccountID}
             icon={avatar}
             fallbackUserDetails={{
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                displayName: fallbackDisplayName || avatar?.name,
+                displayName: avatar?.name,
             }}
             shouldRender={shouldShowTooltip}
         >
             <View>
-                <ProfileAvatar
-                    useProfileNavigationWrapper={useProfileNavigationWrapper}
+                <Avatar
                     containerStyles={containerStyles ?? avatarContainerStyles}
                     source={avatar?.source}
                     type={avatar?.type ?? CONST.ICON_TYPE_AVATAR}
@@ -160,8 +118,6 @@ function ReportActionAvatarSubscript({
     noRightMarginOnContainer,
     subscriptAvatarBorderColor,
     subscriptCardFeed,
-    fallbackDisplayName,
-    useProfileNavigationWrapper,
 }: {
     primaryAvatar: IconType;
     secondaryAvatar: IconType;
@@ -170,8 +126,6 @@ function ReportActionAvatarSubscript({
     noRightMarginOnContainer?: boolean;
     subscriptAvatarBorderColor?: ColorValue;
     subscriptCardFeed?: CompanyCardFeed | typeof CONST.EXPENSIFY_CARD.BANK;
-    fallbackDisplayName?: string;
-    useProfileNavigationWrapper?: boolean;
 }) {
     const theme = useTheme();
     const styles = useThemeStyles();
@@ -209,13 +163,11 @@ function ReportActionAvatarSubscript({
                 accountID={Number(primaryAvatar.id ?? CONST.DEFAULT_NUMBER_ID)}
                 icon={primaryAvatar}
                 fallbackUserDetails={{
-                    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                    displayName: fallbackDisplayName || primaryAvatar.name,
+                    displayName: primaryAvatar.name,
                 }}
             >
                 <View>
-                    <ProfileAvatar
-                        useProfileNavigationWrapper={useProfileNavigationWrapper}
+                    <Avatar
                         containerStyles={StyleUtils.getWidthAndHeightStyle(StyleUtils.getAvatarSize(size || CONST.AVATAR_SIZE.DEFAULT))}
                         source={primaryAvatar.source}
                         size={size}
@@ -239,8 +191,7 @@ function ReportActionAvatarSubscript({
                         // https://stackoverflow.com/questions/56338939/hover-in-css-is-not-working-with-electron
                         dataSet={{dragArea: false}}
                     >
-                        <ProfileAvatar
-                            useProfileNavigationWrapper={useProfileNavigationWrapper}
+                        <Avatar
                             iconAdditionalStyles={[
                                 StyleUtils.getAvatarBorderWidth(isSmall ? CONST.AVATAR_SIZE.SMALL_SUBSCRIPT : subscriptAvatarSize),
                                 StyleUtils.getBorderColorStyle(subscriptAvatarBorderColor ?? theme.componentBG),
@@ -315,15 +266,11 @@ function ReportActionAvatarMultipleHorizontal({
     icons: unsortedIcons,
     isInReportAction,
     sort: sortAvatars,
-    useProfileNavigationWrapper,
-    fallbackDisplayName,
 }: HorizontalStacking & {
     size: ValueOf<typeof CONST.AVATAR_SIZE>;
     shouldShowTooltip: boolean;
     icons: IconType[];
     isInReportAction: boolean;
-    fallbackDisplayName?: string;
-    useProfileNavigationWrapper?: boolean;
 }) {
     const theme = useTheme();
     const styles = useThemeStyles();
@@ -383,14 +330,12 @@ function ReportActionAvatarMultipleHorizontal({
                     accountID={Number(icon.id)}
                     icon={icon}
                     fallbackUserDetails={{
-                        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                        displayName: fallbackDisplayName || icon.name,
+                        displayName: icon.name,
                     }}
                     shouldRender={shouldShowTooltip}
                 >
                     <View style={[StyleUtils.getHorizontalStackedAvatarStyle(index, overlapSize), StyleUtils.getAvatarBorderRadius(size, icon.type)]}>
-                        <ProfileAvatar
-                            useProfileNavigationWrapper={useProfileNavigationWrapper}
+                        <Avatar
                             iconAdditionalStyles={[
                                 StyleUtils.getHorizontalStackedAvatarBorderStyle({
                                     theme,
@@ -459,8 +404,6 @@ function ReportActionAvatarMultipleDiagonal({
     useMidSubscriptSize,
     secondaryAvatarContainerStyle,
     isHovered = false,
-    useProfileNavigationWrapper,
-    fallbackDisplayName,
 }: {
     size: ValueOf<typeof CONST.AVATAR_SIZE>;
     shouldShowTooltip: boolean;
@@ -469,8 +412,6 @@ function ReportActionAvatarMultipleDiagonal({
     useMidSubscriptSize: boolean;
     secondaryAvatarContainerStyle?: StyleProp<ViewStyle>;
     isHovered?: boolean;
-    useProfileNavigationWrapper?: boolean;
-    fallbackDisplayName?: string;
 }) {
     const theme = useTheme();
     const styles = useThemeStyles();
@@ -531,15 +472,13 @@ function ReportActionAvatarMultipleDiagonal({
                     accountID={Number(icons.at(0)?.id)}
                     icon={icons.at(0)}
                     fallbackUserDetails={{
-                        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                        displayName: fallbackDisplayName || icons.at(0)?.name,
+                        displayName: icons.at(0)?.name,
                     }}
                     shouldRender={shouldShowTooltip}
                 >
                     {/* View is necessary for tooltip to show for multiple avatars in LHN */}
                     <View>
-                        <ProfileAvatar
-                            useProfileNavigationWrapper={useProfileNavigationWrapper}
+                        <Avatar
                             source={icons.at(0)?.source ?? WorkspaceBuilding}
                             size={avatarSize}
                             imageStyles={[singleAvatarStyle]}
@@ -563,14 +502,12 @@ function ReportActionAvatarMultipleDiagonal({
                             accountID={Number(icons.at(1)?.id)}
                             icon={icons.at(1)}
                             fallbackUserDetails={{
-                                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                                displayName: fallbackDisplayName || icons.at(1)?.name,
+                                displayName: icons.at(1)?.name,
                             }}
                             shouldRender={shouldShowTooltip}
                         >
                             <View>
-                                <ProfileAvatar
-                                    useProfileNavigationWrapper={useProfileNavigationWrapper}
+                                <Avatar
                                     source={icons.at(1)?.source ?? WorkspaceBuilding}
                                     size={avatarSize}
                                     imageStyles={[singleAvatarStyle]}

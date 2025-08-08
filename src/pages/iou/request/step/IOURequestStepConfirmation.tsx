@@ -130,7 +130,6 @@ function IOURequestStepConfirmation({
     const [policyTags] = useOnyx(`${ONYXKEYS.COLLECTION.POLICY_TAGS}${realPolicyID}`, {canBeMissing: true});
     const [userLocation] = useOnyx(ONYXKEYS.USER_LOCATION, {canBeMissing: true});
     const [reportAttributesDerived] = useOnyx(ONYXKEYS.DERIVED.REPORT_ATTRIBUTES, {canBeMissing: true, selector: (val) => val?.reports});
-    const [recentlyUsedDestinations] = useOnyx(`${ONYXKEYS.COLLECTION.POLICY_RECENTLY_USED_DESTINATIONS}${realPolicyID}`, {canBeMissing: true});
 
     /*
      * We want to use a report from the transaction if it exists
@@ -189,6 +188,10 @@ function IOURequestStepConfirmation({
     const gpsRequired = transaction?.amount === 0 && iouType !== CONST.IOU.TYPE.SPLIT && Object.values(receiptFiles).length && !isTestTransaction;
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+
+    const [introSelected] = useOnyx(ONYXKEYS.NVP_INTRO_SELECTED, {canBeMissing: true});
+    const viewTourReportID = introSelected?.viewTour;
+    const [viewTourReport] = useOnyx(`${ONYXKEYS.COLLECTION.REPORT}${viewTourReportID}`, {canBeMissing: true});
 
     const headerTitle = useMemo(() => {
         if (isCategorizingTrackExpense) {
@@ -450,7 +453,7 @@ function IOURequestStepConfirmation({
                 const isTestDriveReceipt = receipt?.isTestDriveReceipt ?? false;
 
                 if (isTestDriveReceipt) {
-                    completeTestDriveTask();
+                    completeTestDriveTask(viewTourReport, viewTourReportID);
                 }
 
                 requestMoneyIOUActions({
@@ -512,6 +515,8 @@ function IOURequestStepConfirmation({
             transactionTaxAmount,
             customUnitRateID,
             backToReport,
+            viewTourReport,
+            viewTourReportID,
         ],
     );
 
@@ -537,9 +542,6 @@ function IOURequestStepConfirmation({
                     policyTagList: policyTags,
                     policyCategories,
                 },
-                recentlyUsedParams: {
-                    destinations: recentlyUsedDestinations,
-                },
                 transactionParams: {
                     currency: transaction.currency,
                     created: transaction.created,
@@ -552,7 +554,7 @@ function IOURequestStepConfirmation({
                 },
             });
         },
-        [report, transaction, currentUserPersonalDetails.login, currentUserPersonalDetails.accountID, policy, policyTags, policyCategories, recentlyUsedDestinations],
+        [report, transaction, currentUserPersonalDetails.login, currentUserPersonalDetails.accountID, policy, policyTags, policyCategories],
     );
 
     const trackExpense = useCallback(

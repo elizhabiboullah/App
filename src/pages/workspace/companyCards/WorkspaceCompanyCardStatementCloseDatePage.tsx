@@ -1,11 +1,9 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback} from 'react';
 import FullScreenLoadingIndicator from '@components/FullscreenLoadingIndicator';
 import useCardFeeds from '@hooks/useCardFeeds';
 import useLocalize from '@hooks/useLocalize';
 import useOnyx from '@hooks/useOnyx';
-import useWorkspaceAccountID from '@hooks/useWorkspaceAccountID';
-import {clearErrorField, setFeedStatementPeriodEndDay} from '@libs/actions/CompanyCards';
-import {getCompanyFeeds, getDomainOrWorkspaceAccountID, getSelectedFeed} from '@libs/CardUtils';
+import {getSelectedFeed} from '@libs/CardUtils';
 import Navigation from '@libs/Navigation/Navigation';
 import type {PlatformStackScreenProps} from '@libs/Navigation/PlatformStackNavigation/types';
 import type {SettingsNavigatorParamList} from '@libs/Navigation/types';
@@ -14,7 +12,7 @@ import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import ROUTES from '@src/ROUTES';
 import type SCREENS from '@src/SCREENS';
-import type {StatementPeriodEnd, StatementPeriodEndDay} from '@src/types/onyx/CardFeeds';
+import type {CompanyCardStatementCloseDate} from '@src/types/onyx/CardFeeds';
 import isLoadingOnyxValue from '@src/types/utils/isLoadingOnyxValue';
 import WorkspaceCompanyCardStatementCloseDateSelectionList from './WorkspaceCompanyCardStatementCloseDateSelectionList';
 
@@ -29,47 +27,23 @@ function WorkspaceCompanyCardStatementCloseDatePage({
     const [lastSelectedFeed, lastSelectedFeedResult] = useOnyx(`${ONYXKEYS.COLLECTION.LAST_SELECTED_FEED}${policyID}`, {canBeMissing: true});
     const [cardFeeds, cardFeedsResult] = useCardFeeds(policyID);
     const selectedFeed = getSelectedFeed(lastSelectedFeed, cardFeeds);
-    const workspaceAccountID = useWorkspaceAccountID(policyID);
-    const companyFeeds = getCompanyFeeds(cardFeeds);
-    const selectedFeedData = selectedFeed ? companyFeeds[selectedFeed] : undefined;
-    const domainOrWorkspaceAccountID = getDomainOrWorkspaceAccountID(workspaceAccountID, selectedFeedData);
-    const statementPeriodEndDay = selectedFeedData?.statementPeriodEndDay;
-
-    const [defaultStatementPeriodEnd, defaultStatementPeriodEndDay] = useMemo(() => {
-        if (!statementPeriodEndDay) {
-            return [undefined, undefined];
-        }
-
-        if (typeof statementPeriodEndDay === 'number') {
-            return [undefined, statementPeriodEndDay];
-        }
-
-        return [statementPeriodEndDay, undefined];
-    }, [statementPeriodEndDay]);
 
     const submit = useCallback(
-        (newStatementPeriodEnd: StatementPeriodEnd | undefined, newStatementPeriodEndDay: StatementPeriodEndDay | undefined) => {
-            const isChangedValue = (newStatementPeriodEndDay ?? newStatementPeriodEnd) !== statementPeriodEndDay;
-            if (selectedFeed && isChangedValue) {
-                setFeedStatementPeriodEndDay(policyID, selectedFeed, domainOrWorkspaceAccountID, newStatementPeriodEnd, newStatementPeriodEndDay, statementPeriodEndDay);
+        // s77rt make use of statementCloseDate / statementCustomCloseDate and remove disable lint rule
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (statementCloseDate: CompanyCardStatementCloseDate, statementCustomCloseDate: number | undefined) => {
+            if (selectedFeed) {
+                // s77rt call API command
             }
 
             Navigation.goBack(ROUTES.WORKSPACE_COMPANY_CARDS_SETTINGS.getRoute(policyID));
         },
-        [policyID, selectedFeed, statementPeriodEndDay, domainOrWorkspaceAccountID],
+        [policyID, selectedFeed],
     );
 
     const goBack = useCallback(() => {
         Navigation.goBack();
     }, []);
-
-    const clearError = useCallback(() => {
-        if (!selectedFeed) {
-            return;
-        }
-
-        clearErrorField(selectedFeed, domainOrWorkspaceAccountID, 'statementPeriodEndDay');
-    }, [selectedFeed, domainOrWorkspaceAccountID]);
 
     if (isLoadingOnyxValue(cardFeedsResult) || isLoadingOnyxValue(lastSelectedFeedResult)) {
         return <FullScreenLoadingIndicator />;
@@ -86,11 +60,6 @@ function WorkspaceCompanyCardStatementCloseDatePage({
                 onSubmit={submit}
                 onBackButtonPress={goBack}
                 enabledWhenOffline
-                defaultStatementPeriodEnd={defaultStatementPeriodEnd}
-                defaultStatementPeriodEndDay={defaultStatementPeriodEndDay}
-                pendingAction={selectedFeedData?.pendingFields?.statementPeriodEndDay}
-                errors={selectedFeedData?.errorFields?.statementPeriodEndDay}
-                onCloseError={clearError}
             />
         </AccessOrNotFoundWrapper>
     );

@@ -732,7 +732,6 @@ function WalletPage({shouldListenForResize = false}: WalletPageProps) {
                             icon={Expensicons.MoneySearch}
                             title={translate('workspace.common.viewTransactions')}
                             onPress={() => {
-                                hideCardMenu();
                                 Navigation.navigate(
                                     ROUTES.SEARCH_ROOT.getRoute({
                                         query: buildCannedSearchQuery({

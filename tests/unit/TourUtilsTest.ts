@@ -3,77 +3,45 @@ import CONST from '@src/CONST';
 
 describe('TourUtils', () => {
     describe('getTestDriveURL', () => {
-        describe('NewDot users with introSelected NVP', () => {
-            describe('Invited employee', () => {
-                it('returns proper URL when screen is narrow', () => {
-                    const url = getTestDriveURL(true, {choice: CONST.ONBOARDING_CHOICES.SUBMIT, inviteType: CONST.ONBOARDING_INVITE_TYPES.WORKSPACE}, false);
+        describe('Invited employee', () => {
+            it('returns proper URL when screen is narrow', () => {
+                const url = getTestDriveURL(true, {choice: CONST.ONBOARDING_CHOICES.SUBMIT, inviteType: CONST.ONBOARDING_INVITE_TYPES.WORKSPACE});
 
-                    expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR_MOBILE);
-                });
-
-                it('returns proper URL when screen is not narrow', () => {
-                    const url = getTestDriveURL(false, {choice: CONST.ONBOARDING_CHOICES.SUBMIT, inviteType: CONST.ONBOARDING_INVITE_TYPES.WORKSPACE}, false);
-
-                    expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR);
-                });
+                expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR_MOBILE);
             });
 
-            describe('Intro selected is Track Workspace', () => {
-                it('returns proper URL when screen is narrow', () => {
-                    const url = getTestDriveURL(true, {choice: CONST.ONBOARDING_CHOICES.TRACK_WORKSPACE}, false);
+            it('returns proper URL when screen is not narrow', () => {
+                const url = getTestDriveURL(false, {choice: CONST.ONBOARDING_CHOICES.SUBMIT, inviteType: CONST.ONBOARDING_INVITE_TYPES.WORKSPACE});
 
-                    expect(url).toBe(CONST.STORYLANE.TRACK_WORKSPACE_TOUR_MOBILE);
-                });
-
-                it('returns proper URL when screen is not narrow', () => {
-                    const url = getTestDriveURL(false, {choice: CONST.ONBOARDING_CHOICES.TRACK_WORKSPACE}, false);
-
-                    expect(url).toBe(CONST.STORYLANE.TRACK_WORKSPACE_TOUR);
-                });
-            });
-
-            describe('Default case - Admin tour', () => {
-                it('returns proper URL when screen is narrow', () => {
-                    const url = getTestDriveURL(true, {}, false);
-
-                    expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR_MOBILE);
-                });
-
-                it('returns proper URL when screen is not narrow', () => {
-                    const url = getTestDriveURL(false, {}, false);
-
-                    expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR);
-                });
+                expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR);
             });
         });
 
-        describe('Migrated users from Classic - no introSelected NVP', () => {
-            describe('User is admin of a workspace', () => {
-                it('returns proper URL when screen is narrow', () => {
-                    const url = getTestDriveURL(true, undefined, true);
+        describe('Intro selected is Track Workspace', () => {
+            it('returns proper URL when screen is narrow', () => {
+                const url = getTestDriveURL(true, {choice: CONST.ONBOARDING_CHOICES.TRACK_WORKSPACE});
 
-                    expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR_MOBILE);
-                });
-
-                it('returns proper URL when screen is not narrow', () => {
-                    const url = getTestDriveURL(false, undefined, true);
-
-                    expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR);
-                });
+                expect(url).toBe(CONST.STORYLANE.TRACK_WORKSPACE_TOUR_MOBILE);
             });
 
-            describe('Default case - Employee tour', () => {
-                it('returns proper URL when screen is narrow', () => {
-                    const url = getTestDriveURL(true, undefined, false);
+            it('returns proper URL when screen is not narrow', () => {
+                const url = getTestDriveURL(false, {choice: CONST.ONBOARDING_CHOICES.TRACK_WORKSPACE});
 
-                    expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR_MOBILE);
-                });
+                expect(url).toBe(CONST.STORYLANE.TRACK_WORKSPACE_TOUR);
+            });
+        });
 
-                it('returns proper URL when screen is not narrow', () => {
-                    const url = getTestDriveURL(false, undefined, false);
+        describe('Default case - Admin tour', () => {
+            it('returns proper URL when screen is narrow', () => {
+                const url = getTestDriveURL(true);
 
-                    expect(url).toBe(CONST.STORYLANE.EMPLOYEE_TOUR);
-                });
+                expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR_MOBILE);
+            });
+
+            it('returns proper URL when screen is not narrow', () => {
+                const url = getTestDriveURL(false);
+
+                expect(url).toBe(CONST.STORYLANE.ADMIN_TOUR);
             });
         });
     });

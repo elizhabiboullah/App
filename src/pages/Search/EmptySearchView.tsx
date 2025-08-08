@@ -1,7 +1,7 @@
 import React, {useMemo, useRef, useState} from 'react';
 // eslint-disable-next-line no-restricted-imports
 import type {GestureResponderEvent, ImageStyle, Text as RNText, TextStyle, ViewStyle} from 'react-native';
-import {Linking, View} from 'react-native';
+import {InteractionManager, Linking, View} from 'react-native';
 import type {OnyxCollection} from 'react-native-onyx';
 import type {ValueOf} from 'type-fest';
 import BookTravelButton from '@components/BookTravelButton';
@@ -28,10 +28,10 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import {startMoneyRequest} from '@libs/actions/IOU';
 import {openOldDotLink} from '@libs/actions/Link';
 import {createNewReport} from '@libs/actions/Report';
-import {startTestDrive} from '@libs/actions/Tour';
+import {completeTestDriveTask} from '@libs/actions/Task';
 import interceptAnonymousUser from '@libs/interceptAnonymousUser';
 import Navigation from '@libs/Navigation/Navigation';
-import {hasSeenTourSelector, tryNewDotOnyxSelector} from '@libs/onboardingSelectors';
+import {hasSeenTourSelector} from '@libs/onboardingSelectors';
 import {areAllGroupPoliciesExpenseChatDisabled, getGroupPaidPoliciesWithExpenseChatEnabled, isPaidGroupPolicy} from '@libs/PolicyUtils';
 import {generateReportID} from '@libs/ReportUtils';
 import {shouldRestrictUserBillableActions} from '@libs/SubscriptionUtils';
@@ -90,7 +90,6 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
     const [transactions] = useOnyx(ONYXKEYS.COLLECTION.TRANSACTION, {
         canBeMissing: true,
     });
-    const [tryNewDot] = useOnyx(ONYXKEYS.NVP_TRY_NEW_DOT, {selector: tryNewDotOnyxSelector, canBeMissing: true});
 
     const groupPoliciesWithChatEnabled = getGroupPaidPoliciesWithExpenseChatEnabled();
 
@@ -164,6 +163,8 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
         selector: hasSeenTourSelector,
         canBeMissing: true,
     });
+    const viewTourReportID = introSelected?.viewTour;
+    const [viewTourReport] = useOnyx(`${ONYXKEYS.COLLECTION.REPORT}${viewTourReportID}`, {canBeMissing: true});
 
     // Default 'Folder' lottie animation, along with its background styles
     const defaultViewItemHeader = useMemo(
@@ -195,8 +196,20 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
             }
         }
 
-        const startTestDriveAction = () => {
-            startTestDrive(introSelected, false, tryNewDot?.hasBeenAddedToNudgeMigration);
+        const startTestDrive = () => {
+            InteractionManager.runAfterInteractions(() => {
+                if (
+                    introSelected?.choice === CONST.ONBOARDING_CHOICES.MANAGE_TEAM ||
+                    introSelected?.choice === CONST.ONBOARDING_CHOICES.TEST_DRIVE_RECEIVER ||
+                    introSelected?.choice === CONST.ONBOARDING_CHOICES.TRACK_WORKSPACE ||
+                    (introSelected?.choice === CONST.ONBOARDING_CHOICES.SUBMIT && introSelected.inviteType === CONST.ONBOARDING_INVITE_TYPES.WORKSPACE)
+                ) {
+                    completeTestDriveTask(viewTourReport, viewTourReportID);
+                    Navigation.navigate(ROUTES.TEST_DRIVE_DEMO_ROOT);
+                } else {
+                    Navigation.navigate(ROUTES.TEST_DRIVE_MODAL_ROOT.route);
+                }
+            });
         };
 
         // If we are grouping by reports, show a custom message rather than a type-specific message
@@ -218,7 +231,7 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
                         ? [
                               {
                                   buttonText: translate('emptySearchView.takeATestDrive'),
-                                  buttonAction: startTestDriveAction,
+                                  buttonAction: startTestDrive,
                               },
                           ]
                         : []),
@@ -285,7 +298,7 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
                                 ? [
                                       {
                                           buttonText: translate('emptySearchView.takeATestDrive'),
-                                          buttonAction: startTestDriveAction,
+                                          buttonAction: startTestDrive,
                                       },
                                   ]
                                 : []),
@@ -316,7 +329,7 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
                                 ? [
                                       {
                                           buttonText: translate('emptySearchView.takeATestDrive'),
-                                          buttonAction: startTestDriveAction,
+                                          buttonAction: startTestDrive,
                                       },
                                   ]
                                 : []),
@@ -358,7 +371,8 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
         styles.emptyStateFolderWebStyles,
         styles.textAlignLeft,
         styles.tripEmptyStateLottieWebView,
-        introSelected,
+        introSelected?.choice,
+        introSelected?.inviteType,
         hasResults,
         defaultViewItemHeader,
         hasSeenTour,
@@ -368,8 +382,9 @@ function EmptySearchView({hash, type, groupBy, hasResults}: EmptySearchViewProps
         currentUserPersonalDetails,
         tripViewChildren,
         shouldRedirectToExpensifyClassic,
+        viewTourReport,
+        viewTourReportID,
         transactions,
-        tryNewDot?.hasBeenAddedToNudgeMigration,
     ]);
 
     return (

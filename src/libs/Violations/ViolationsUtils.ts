@@ -226,10 +226,7 @@ const ViolationsUtils = {
         hasDependentTags: boolean,
         isInvoiceTransaction: boolean,
     ): OnyxUpdate {
-        const isScanning = TransactionUtils.isScanning(updatedTransaction);
-        const isScanRequest = TransactionUtils.isScanRequest(updatedTransaction);
-        const isPartialTransaction = TransactionUtils.isPartial(updatedTransaction);
-        if (isPartialTransaction && isScanning) {
+        if (TransactionUtils.isPartial(updatedTransaction)) {
             return {
                 onyxMethod: Onyx.METHOD.SET,
                 key: `${ONYXKEYS.COLLECTION.TRANSACTION_VIOLATIONS}${updatedTransaction.transactionID}`,
@@ -238,19 +235,6 @@ const ViolationsUtils = {
         }
 
         let newTransactionViolations = [...transactionViolations];
-
-        const shouldShowSmartScanFailedError = isScanRequest && updatedTransaction.receipt?.state === CONST.IOU.RECEIPT_STATE.SCAN_FAILED;
-        const hasSmartScanFailedError = transactionViolations.some((violation) => violation.name === CONST.VIOLATIONS.SMARTSCAN_FAILED);
-        if (shouldShowSmartScanFailedError && !hasSmartScanFailedError) {
-            return {
-                onyxMethod: Onyx.METHOD.SET,
-                key: `${ONYXKEYS.COLLECTION.TRANSACTION_VIOLATIONS}${updatedTransaction.transactionID}`,
-                value: [{name: CONST.VIOLATIONS.SMARTSCAN_FAILED, type: CONST.VIOLATION_TYPES.WARNING, showInReview: true}],
-            };
-        }
-        if (!shouldShowSmartScanFailedError && hasSmartScanFailedError) {
-            newTransactionViolations = reject(newTransactionViolations, {name: CONST.VIOLATIONS.SMARTSCAN_FAILED});
-        }
 
         // Calculate client-side category violations
         const policyRequiresCategories = !!policy.requiresCategory;
@@ -304,10 +288,6 @@ const ViolationsUtils = {
         // const hasOverTripLimitViolation = transactionViolations.some((violation) => violation.name === CONST.VIOLATIONS.OVER_TRIP_LIMIT);
         const hasCategoryOverLimitViolation = transactionViolations.some((violation) => violation.name === CONST.VIOLATIONS.OVER_CATEGORY_LIMIT);
         const hasMissingCommentViolation = transactionViolations.some((violation) => violation.name === CONST.VIOLATIONS.MISSING_COMMENT);
-        const hasTaxOutOfPolicyViolation = transactionViolations.some((violation) => violation.name === CONST.VIOLATIONS.TAX_OUT_OF_POLICY);
-        const isPolicyTrackTaxEnabled = !!policy?.tax?.trackingEnabled;
-        const isTaxInPolicy = Object.keys(policy.taxRates?.taxes ?? {}).some((key) => key === updatedTransaction.taxCode);
-
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         const amount = updatedTransaction.modifiedAmount || updatedTransaction.amount;
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -429,13 +409,6 @@ const ViolationsUtils = {
             newTransactionViolations = reject(newTransactionViolations, {name: CONST.VIOLATIONS.MISSING_COMMENT});
         }
 
-        if (isPolicyTrackTaxEnabled && !hasTaxOutOfPolicyViolation && !isTaxInPolicy) {
-            newTransactionViolations.push({name: CONST.VIOLATIONS.TAX_OUT_OF_POLICY, type: CONST.VIOLATION_TYPES.VIOLATION});
-        }
-
-        if (isPolicyTrackTaxEnabled && hasTaxOutOfPolicyViolation && isTaxInPolicy) {
-            newTransactionViolations = reject(newTransactionViolations, {name: CONST.VIOLATIONS.TAX_OUT_OF_POLICY});
-        }
         return {
             onyxMethod: Onyx.METHOD.SET,
             key: `${ONYXKEYS.COLLECTION.TRANSACTION_VIOLATIONS}${updatedTransaction.transactionID}`,

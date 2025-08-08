@@ -14,9 +14,7 @@ type SearchSelectedNarrowProps = {options: Array<DropdownOption<SearchHeaderOpti
 function SearchSelectedNarrow({options, itemsLength}: SearchSelectedNarrowProps) {
     const styles = useThemeStyles();
     const {translate} = useLocalize();
-
-    // Stores an option to execute after modal closes when using deferred execution
-    const selectedOptionRef = useRef<DropdownOption<SearchHeaderOptionValue> | null>(null);
+    const selectedOptionIndexRef = useRef(-1);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const buttonRef = useRef<View>(null);
@@ -25,17 +23,16 @@ function SearchSelectedNarrow({options, itemsLength}: SearchSelectedNarrowProps)
     const closeMenu = () => setIsModalVisible(false);
 
     const handleOnModalHide = () => {
-        if (!selectedOptionRef.current) {
+        if (selectedOptionIndexRef.current === -1) {
             return;
         }
 
-        selectedOptionRef.current.onSelected?.();
-        selectedOptionRef.current = null;
+        options[selectedOptionIndexRef.current]?.onSelected?.();
     };
 
-    const handleOnMenuItemPress = (option: DropdownOption<SearchHeaderOptionValue>) => {
+    const handleOnMenuItemPress = (option: DropdownOption<SearchHeaderOptionValue>, index: number) => {
         if (option?.shouldCloseModalOnSelect) {
-            selectedOptionRef.current = option;
+            selectedOptionIndexRef.current = index;
             closeMenu();
             return;
         }
@@ -43,7 +40,7 @@ function SearchSelectedNarrow({options, itemsLength}: SearchSelectedNarrowProps)
     };
 
     const handleOnCloseMenu = () => {
-        selectedOptionRef.current = null;
+        selectedOptionIndexRef.current = -1;
         closeMenu();
     };
 
@@ -64,8 +61,8 @@ function SearchSelectedNarrow({options, itemsLength}: SearchSelectedNarrowProps)
                 isVisible={isModalVisible}
                 onClose={handleOnCloseMenu}
                 onModalHide={handleOnModalHide}
-                onItemSelected={(selectedItem) => {
-                    handleOnMenuItemPress(selectedItem as DropdownOption<SearchHeaderOptionValue>);
+                onItemSelected={(selectedItem, index) => {
+                    handleOnMenuItemPress(selectedItem as DropdownOption<SearchHeaderOptionValue>, index);
                 }}
                 anchorPosition={{horizontal: 0, vertical: 0}}
                 anchorRef={buttonRef}
@@ -75,7 +72,17 @@ function SearchSelectedNarrow({options, itemsLength}: SearchSelectedNarrowProps)
                 }}
                 fromSidebarMediumScreen={false}
                 shouldUseModalPaddingStyle
-                menuItems={options}
+                menuItems={options.map((item, index) => ({
+                    ...item,
+                    onSelected: item?.onSelected
+                        ? () => {
+                              item.onSelected?.();
+                          }
+                        : () => {
+                              handleOnMenuItemPress(item, index);
+                          },
+                    shouldCallAfterModalHide: true,
+                }))}
             />
         </View>
     );

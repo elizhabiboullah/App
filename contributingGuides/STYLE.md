@@ -1269,10 +1269,8 @@ The correct approach is avoid using `ScrollView`. You can add props like `listHe
 </ScrollView>
 ```
 
-### Correct Approach 
-The correct approach is to use the list component's built-in header and footer props instead of wrapping in a `ScrollView`:
+### Correct Approach (Using `SelectionList`)
 
-- Using `SelectionList`
 ```jsx
 <SelectionList
     sections={[{item}]}
@@ -1281,20 +1279,6 @@ The correct approach is to use the list component's built-in header and footer p
     listHeaderComponent={<Text>Header Content</Text>}
     listFooterComponent={<Button title="Submit" onPress={handleSubmit} />}
 />
-```
-
-- If you can't switch to `SelectionList` or `FlatList`, you can use `FlashList` as an alternative approach:
-```jsx
-<ScrollView>
-    <Text>Header Content</Text>
-    <FlashList
-        data={data}
-        renderItem={RadioListItem}
-        estimatedItemSize={variables.optionRowHeight}
-        keyExtractor={keyExtractor}
-    />
-    <Button title="Submit" onPress={handleSubmit} />
-</ScrollView>
 ```
 
 This ensures optimal performance and avoids layout issues.

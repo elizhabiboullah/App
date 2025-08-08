@@ -16,7 +16,7 @@ import type {SettingsNavigatorParamList} from '@navigation/types';
 import AccessOrNotFoundWrapper from '@pages/workspace/AccessOrNotFoundWrapper';
 import type {WithPolicyOnyxProps} from '@pages/workspace/withPolicy';
 import withPolicy from '@pages/workspace/withPolicy';
-import {updateDistanceTaxClaimableValue} from '@userActions/Policy/DistanceRate';
+import * as DistanceRate from '@userActions/Policy/DistanceRate';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
 import type SCREENS from '@src/SCREENS';
@@ -46,7 +46,7 @@ function PolicyDistanceRateTaxReclaimableEditPage({route, policy}: PolicyDistanc
         if (!customUnit || !rate) {
             return;
         }
-        updateDistanceTaxClaimableValue(policyID, customUnit, [
+        DistanceRate.updateDistanceTaxClaimableValue(policyID, customUnit, [
             {
                 ...rate,
                 attributes: {
@@ -91,7 +91,7 @@ function PolicyDistanceRateTaxReclaimableEditPage({route, policy}: PolicyDistanc
                     <InputWrapperWithRef
                         InputComponent={AmountForm}
                         inputID={INPUT_IDS.TAX_CLAIMABLE_VALUE}
-                        decimals={CONST.MAX_TAX_RATE_DECIMAL_PLACES}
+                        fixedDecimals={CONST.MAX_TAX_RATE_DECIMAL_PLACES}
                         defaultValue={currentTaxReclaimableOnValue?.toString() ?? ''}
                         isCurrencyPressable={false}
                         currency={currency}

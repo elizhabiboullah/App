@@ -32,7 +32,6 @@ import {
     parseForAutocomplete,
 } from '@libs/SearchAutocompleteUtils';
 import {buildSearchQueryJSON, buildUserReadableQueryString, getQueryWithoutFilters, sanitizeSearchValue, shouldHighlight} from '@libs/SearchQueryUtils';
-import {getDatePresets} from '@libs/SearchUIUtils';
 import StringUtils from '@libs/StringUtils';
 import Timing from '@userActions/Timing';
 import CONST from '@src/CONST';
@@ -432,10 +431,9 @@ function SearchAutocompleteList(
                     text: status,
                 }));
             }
-            case CONST.SEARCH.SYNTAX_FILTER_KEYS.WITHDRAWN:
             case CONST.SEARCH.SYNTAX_FILTER_KEYS.EXPORTED:
             case CONST.SEARCH.SYNTAX_FILTER_KEYS.POSTED: {
-                const filteredDatePresets = (getDatePresets(autocompleteKey, true) ?? [])
+                const filteredDatePresets = CONST.SEARCH.FILTER_DATE_PRESETS[autocompleteKey]
                     .filter((datePreset) => datePreset.toLowerCase().includes(autocompleteValue.toLowerCase()) && !alreadyAutocompletedKeys.includes(datePreset.toLowerCase()))
                     .sort()
                     .slice(0, 10);

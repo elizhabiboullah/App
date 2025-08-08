@@ -87,7 +87,6 @@ const UserFriendlyKeyMap: Record<SearchFilterKey | typeof CONST.SEARCH.SYNTAX_RO
     paid: 'paid',
     exported: 'exported',
     posted: 'posted',
-    withdrawn: 'withdrawn',
     groupBy: 'group-by',
     title: 'title',
     assignee: 'assignee',
@@ -511,11 +510,11 @@ function buildQueryStringFromFilterFormValues(filterValues: Partial<SearchAdvanc
     filtersString.push(...mappedFilters);
 
     DATE_FILTER_KEYS.forEach((dateKey) => {
-        const dateFilter = buildDateFilterQuery(supportedFilterValues, dateKey);
+        const dateFilter = buildDateFilterQuery(filterValues, dateKey);
         filtersString.push(dateFilter);
     });
 
-    const amountFilter = buildAmountFilterQuery(supportedFilterValues);
+    const amountFilter = buildAmountFilterQuery(filterValues);
     filtersString.push(amountFilter);
 
     return filtersString.filter(Boolean).join(' ').trim();

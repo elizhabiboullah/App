@@ -398,8 +398,7 @@ function ReportActionsList({
             return;
         }
 
-        const shouldScrollToEnd =
-            (isExpenseReport(report) || isTransactionThread(parentReportAction)) && isSearchTopmostFullScreenRoute() && hasNewestReportAction && !unreadMarkerReportActionID;
+        const shouldScrollToEnd = (isExpenseReport(report) || isTransactionThread(parentReportAction)) && isSearchTopmostFullScreenRoute();
 
         if (shouldScrollToEnd) {
             setShouldScrollToEndAfterLayout(true);

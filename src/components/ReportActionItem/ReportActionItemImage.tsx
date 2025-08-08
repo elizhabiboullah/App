@@ -61,9 +61,6 @@ type ReportActionItemImageProps = {
     /** whether or not this report is from review duplicates */
     isFromReviewDuplicates?: boolean;
 
-    /** Merge transaction ID to show in merge transaction flow */
-    mergeTransactionID?: string;
-
     /** Callback to be called on pressing the image */
     onPress?: () => void;
 
@@ -91,7 +88,6 @@ function ReportActionItemImage({
     readonly = false,
     shouldMapHaveBorderRadius,
     isFromReviewDuplicates = false,
-    mergeTransactionID,
     onPress,
     shouldUseFullHeight,
 }: ReportActionItemImageProps) {
@@ -158,15 +154,7 @@ function ReportActionItemImage({
                         style={[styles.w100, styles.h100, styles.noOutline as ViewStyle]}
                         onPress={() =>
                             Navigation.navigate(
-                                ROUTES.TRANSACTION_RECEIPT.getRoute(
-                                    transactionThreadReport?.reportID ?? report?.reportID,
-                                    transaction?.transactionID,
-                                    readonly,
-                                    isFromReviewDuplicates,
-                                    undefined,
-                                    undefined,
-                                    mergeTransactionID,
-                                ),
+                                ROUTES.TRANSACTION_RECEIPT.getRoute(transactionThreadReport?.reportID ?? report?.reportID, transaction?.transactionID, readonly, isFromReviewDuplicates),
                             )
                         }
                         accessibilityLabel={translate('accessibilityHints.viewAttachment')}
